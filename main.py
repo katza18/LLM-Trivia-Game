@@ -1,8 +1,12 @@
-import openai
+from openai import AsyncOpenAI
 import json
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
+import os
 
-def generate_quiz(topic, num_questions, qtype='single'):
+# TODO: Add payment method for API usage
+client = AsyncOpenAI()
+
+async def generate_quiz(topic, num_questions, qtype='single'):
     if type == 'multi':
         # Multiple choice questions
         prompt = f"Create a multiple choice quiz on {topic} with {num_questions} questions. " + "Each question should have 4 choices each consisting of 1 to 2 words. Format the output as JSON with the following structure: {'question': 'What is the capital of France?', 'choices': ['Paris', 'London', 'Berlin', 'Madrid'], 'answer': 'Paris'}"
@@ -12,10 +16,14 @@ def generate_quiz(topic, num_questions, qtype='single'):
 
     prompt += " Only include the JSON object in the response. Do not include any other text in the response."
 
-    response = openai.Completion.create(
-        engine='text-davinci-003',
-        prompt=prompt,
-        max_tokens=200
+    response = await client.chat.completions.create(
+        messages=[
+            {
+                "role": "user",
+                "content": prompt,
+            }
+        ],
+        model="gpt-3.5-turbo-16k",
     )
 
     # Convert the JSON response to a dictionary and return
@@ -23,19 +31,23 @@ def generate_quiz(topic, num_questions, qtype='single'):
 
 app = Flask(__name__)
 
+@app.route('/')
+def home():
+    return render_template('index.html')
+
 @app.route('/generate-quiz', methods=['POST'])
-def quiz():
+async def quiz():
     '''
     Endpoint to generate a quiz
 
-    TODO: Add error handling. Store the quiz answers, so they can't be seen in dev tools.
+    TODO: Add error handling. Store the quiz answers, so they can't be seen in dev tools. Add difficulty.
     Could generate a quiz ID, store the answers in sqlit, and return the quiz ID to the user for answer checking.
     '''
     data = request.json
     topic = data['topic']
     num_questions = data['numq']
     qtype = data['type']
-    quiz_data = generate_quiz(topic, num_questions, qtype)
+    quiz_data = await generate_quiz(topic, num_questions, qtype)
     return jsonify('quiz', quiz_data)
 
 @app.route('/save-progress', methods=['POST'])
@@ -45,4 +57,7 @@ def save():
     '''
     data = request.json
     # Save the user's progress
-    return jsonify('status': 'progress saved')
+    return jsonify('success', True)
+
+if __name__ == '__main__':
+    app.run(debug=True)

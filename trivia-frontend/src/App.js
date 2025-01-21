@@ -5,7 +5,7 @@ function App() {
   return (
     <div className="App">
       {/* QA Style ask the user what they'd like to be quizzed on */}
-      <Chat />
+      {/* <Chat /> */}
     </div>
   );
 }

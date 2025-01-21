@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Trivia Game</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('start').addEventListener('click', function() {
+                const topic = document.getElementById('topic').value;
+                const difficulty = document.getElementById('difficulty').value;
+                const numq = document.getElementById('numq').value;
+                const type = document.getElementById('type').value;
+
+                fetch('/generate-quiz', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        topic: topic,
+                        difficulty: difficulty,
+                        numq: numq,
+                        type: type
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Welcome to the LLM Trivia Game!</h1>
+    <div id="game-container">
+        <input type="text" id="topic" placeholder="Enter a topic">
+        <input type="text" id="difficulty" placeholder="Enter a difficulty">
+        <input type="text" id="numq" placeholder="Enter number of questions">
+        <input type="text" id="type" placeholder="Enter type of questions (multiple, boolean, short answer)">
+        <button id="start">Start Quiz</button>
+    </div>
+</body>
+</html>
+
