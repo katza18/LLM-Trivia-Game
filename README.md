@@ -4,7 +4,8 @@
 
 1. **Install Flask**
     ```bash
-    pip install flask[async]
+    pip install Flask
+    pip install asgiref
     ```
 2. **Run the Flask app for testing**:
     ```bash
@@ -16,3 +17,6 @@
     ```bash
     $env:OPENAI_API_KEY="your_openai_api_key"
     ```
+    Mac:
+    ```bash
+    export OPENAI_API_KEY=your_key

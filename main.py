@@ -7,7 +7,7 @@ import os
 client = AsyncOpenAI()
 
 async def generate_quiz(topic, num_questions, qtype='single'):
-    if type == 'multi':
+    if qtype == 'multi':
         # Multiple choice questions
         prompt = f"Create a multiple choice quiz on {topic} with {num_questions} questions. " + "Each question should have 4 choices each consisting of 1 to 2 words. Format the output as JSON with the following structure: {'question': 'What is the capital of France?', 'choices': ['Paris', 'London', 'Berlin', 'Madrid'], 'answer': 'Paris'}"
     else:
@@ -23,11 +23,14 @@ async def generate_quiz(topic, num_questions, qtype='single'):
                 "content": prompt,
             }
         ],
-        model="gpt-3.5-turbo-16k",
+        model="gpt-4o-mini",
     )
 
+    response_content = response.choices[0].message.content.strip()
+    quiz_data = json.loads(response_content.replace("'", '"'))
+
     # Convert the JSON response to a dictionary and return
-    return json.loads(response.choices[0].text.strip())
+    return quiz_data
 
 app = Flask(__name__)
 
