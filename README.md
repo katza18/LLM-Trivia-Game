@@ -28,7 +28,7 @@ This app takes a user defined topic and creates quiz questions based on that top
 4. **Launch Frontend from trivia-frontend**
     ```bash
     cd trivia-frontend
-    npm start
+    npm run dev
     ```
 
 ## Technologies
@@ -36,6 +36,7 @@ This app takes a user defined topic and creates quiz questions based on that top
 - ShadCN - used for simple component styling
 Add components using commands such as:
 ```bash
-npx shadcn add button
+npx shadcn@canary add button
 ```
-Install with: https://ui.shadcn.com/docs/installation/manual
+Install with:
+https://ui.shadcn.com/docs/tailwind-v4
