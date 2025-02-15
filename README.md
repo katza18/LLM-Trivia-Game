@@ -32,7 +32,7 @@ This app takes a user defined topic and creates quiz questions based on that top
     ```
 
 ## Technologies
-- Vite
+- Frontend -> Vite -> ShadCN for simplified development
 - ShadCN - used for simple component styling
 Add components using commands such as:
 ```bash
