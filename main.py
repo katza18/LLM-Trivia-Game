@@ -22,7 +22,7 @@ async def generate_quiz(topic, num_questions, qtype='single', previous_questions
     # Add additional instructions to the prompt
     prompt += f" Only include the JSON object in the response. Do not include any other text in the response."
 
-    # Add previously generated questions to the prompt. 
+    # Add previously generated questions to the prompt.
     if previous_questions:
         prompt += f"Do not include the following questions in the quiz: {previous_questions}"
 
@@ -114,7 +114,7 @@ async def quiz():
     data = request.json
     topic = data['topic']
     num_questions = data['numq']
-    qtype = data['type']
+    qtype = data['qtype']
     previous_questions = get_previous_questions(topic)
     quiz_data = await generate_quiz(topic, num_questions, qtype, previous_questions)
     save_quiz(topic, quiz_data, qtype)

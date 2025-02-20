@@ -1,7 +1,41 @@
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 function Quiz() {
+    const location = useLocation();
+    const { topic, qtype } = location.state as any || {};
+    const [quiz, setQuiz] = useState<any>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchQuiz();
+    }, []);
+
+    const fetchQuiz = async () => {
+        try {
+            const response = await fetch("http://localhost:5000/generate-quiz", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ topic, qtype, numq: 10 }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch quiz");
+            }
+
+            const data = await response.json();
+            setQuiz(data.results);
+            setLoading(false);
+        } catch (error) {
+            console.log(error);
+            setLoading(false);
+        }
+    };
+
     return (
     <div className="quiz flex flex-col flex-grow">
         <div className="timer flex items-center justify-center flex-grow">

@@ -8,7 +8,7 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-  } from "@/components/ui/form";
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
@@ -42,7 +42,7 @@ function Home(){
     // Define the submit handler
     function onSubmit(values: z.infer<typeof formSchema>) {
         console.log(values)
-        navigate('/quiz', { state: values })
+        navigate('/quiz', {state: values})
     }
 
     return (
