@@ -14,7 +14,7 @@ function App() {
           {/* HEADER */}
           <div className="header grid grid-cols-3 gap-4 h-auto">
               <div className="title col-span-1 col-start-2 flex justify-center bg-card">
-                <p>Quiz Me!</p>
+                <p>QuizGen</p>
               </div>
               <div className="theme col-start-3 flex justify-end">
                 <ModeToggle />
