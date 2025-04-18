@@ -89,7 +89,7 @@ class Quiz:
             quiz_data = json.loads(response_content.replace("'", '"'))
 
             # Save the quiz data to the database
-            save_quiz(quiz_data, self.question_type, self.topic)
+            self.save_quiz(quiz_data, self.question_type, self.topic)
 
             return quiz_data
         except Exception as e:
