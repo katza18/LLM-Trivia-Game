@@ -1,7 +1,7 @@
 from openai import AsyncOpenAI
-from flask import Flask, request, jsonify, render_template
-import sqlite3
-from quiz import get_previously_generated_questions, construct_prompt, generate_quiz, save_quiz
+from flask import Flask, request, jsonify
+from quiz import get_previously_generated_questions, construct_prompt, generate_quiz, save_quiz 
+from database import initialize_database
 
 # Initialize the Flask app
 app = Flask(__name__)
@@ -9,36 +9,22 @@ app = Flask(__name__)
 # Initialize the OpenAI client. If we want to use different clients for different API keys, do this in Quiz.py.
 client = AsyncOpenAI()
 
-# Endpoint to initialize a SQLite database
+# Endpoint to initialize a SQLite database with necessary tables
 @app.route('/create-database', methods=['POST'])
-def init_db():
-    conn = sqlite3.connect('quiz.db')
-    cursor = conn.cursor()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS question (
-            id INTEGER PRIMARY KEY,
-            question TEXT,
-            type TEXT,
-            topic TEXT,
-            answer TEXT,
-            option1 TEXT,
-            option2 TEXT,
-            option3 TEXT,
-            option4 TEXT
-        )
-    ''')
-    conn.commit()
-    conn.close()
+def create_db():
+    initialize_database()
+    return jsonify('Database created successfully')
 
 
 # Endpoint to generate a quiz
 @app.route('/generate-quiz', methods=['POST'])
-async def quiz():
+async def create_quiz():
     '''
     Endpoint to generate a quiz
 
     TODO: Add error handling. Store the quiz answers, so they can't be seen in dev tools. Add difficulty.
     Could generate a quiz ID, store the answers in sqlit, and return the quiz ID to the user for answer checking.
+    Consider making quiz.py a class and store state in it.
     '''
     data = request.json
     topic = data['topic']
