@@ -1,10 +1,7 @@
 import sqlite3
 import json
+from database import DATABASE_NAME, SHORT_ANSWER_TABLE_NAME, MULTI_CHOICE_TABLE_NAME
 from openai import AsyncOpenAI
-
-DATABASE_NAME = 'quiz.db'
-SHORT_ANSWER_TABLE_NAME = 'short_answer_question'
-MULTI_CHOICE_TABLE_NAME = 'multiple_choice_question'
 
 '''
     Checks the database for existing questions of a given topic.
