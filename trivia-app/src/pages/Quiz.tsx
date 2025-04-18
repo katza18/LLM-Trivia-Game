@@ -2,112 +2,74 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { fetchQuiz, checkAnswer } from '@/lib/api';
 
 function Quiz() {
     const location = useLocation();
     const { topic, qtype } = location.state as any || {};
-    const [quiz, setQuiz] = useState<any>([]);
-    const [loading, setLoading] = useState(true);
+    const [quiz, setQuiz] = useState<any>(null);
     const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
-    const [answered, setAnswered] = useState(false);
-    const [correct, setCorrect] = useState(false);
-    const [correctAnswer, setCorrectAnswer] = useState('');
-    const [selectedAnswer, setSelectedAnswer] = useState('');
+    const [correctAnswer, setCorrectAnswer] = useState<string>('');
+    const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
     const [score, setScore] = useState(0);
+    const isAnswered = selectedAnswer !== null;
+    const isCorrect = selectedAnswer === correctAnswer;
+    const currentQuestion = quiz[currentQuestionIdx];
 
-    const fetchQuiz = async () => {
-        try {
-            const response = await fetch("http://localhost:5000/generate-quiz", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ topic, qtype, numq: 10 }),
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to fetch quiz");
-            }
-
-            const data = await response.json();
-
-            setQuiz(data.results);
-            setLoading(false);
-        } catch (error) {
-            console.log(error);
-            setLoading(false);
+    
+    const updateAnswerState = (answer: string, correctAnswer: string) => {
+        setSelectedAnswer(answer);
+        setCorrectAnswer(correctAnswer);
+        if (answer === correctAnswer) {
+            setScore((prevScore) => prevScore + 1);
         }
-    };
+    }
+
 
     const handleMultipleChoiceAnswer = async (answer: string) => {
         // Check if answer is correct, send to backend to avoid storing answers in frontend
-        var result = {correctAnswer: ''};
         try {
-            const response = await fetch("http://localhost:5000/check-answer", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ questionId: quiz[currentQuestionIdx].questionId, answer }),
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to check answer");
-            }
-
-            const data = await response.json();
-            result = data.result;
+            const result = await checkAnswer(answer, quiz[currentQuestionIdx].id);
+            updateAnswerState(answer, result.correctAnswer);
         } catch (error) {
-            console.log(error);
-            return;
+            console.error("Error checking answer:", error);
         }
-
-        // Update the selected answer
-        setSelectedAnswer(answer);
-
-        // Update correct answer
-        setCorrectAnswer(result.correctAnswer);
-
-        // Update correct and score
-        if( answer === result.correctAnswer ) {
-            setCorrect(true);
-            setScore(score + 1);
-        }
-
-        // Update answered
-        setAnswered(true);
     };
 
+
     useEffect(() => {
-        fetchQuiz();
-    }, []);
+        const loadQuiz = async () => {
+            try {
+                const data = await fetchQuiz(topic, qtype, 10);
+                setQuiz(data);
+            } catch (error) {
+                console.error("Error fetching quiz:", error);
+                setQuiz([]); // Set quiz to an empty array to trigger the error message
+            }
+        }
 
-    if (loading) {
+        loadQuiz();
+    }, [topic, qtype]);
+
+
+    // If the quiz is still loading, show a loading message
+    if (!quiz || !quiz.length || currentQuestionIdx >= quiz.length) {
+        var text = "";
+        if (!quiz) {
+            text = "Loading...";
+        }
+        else if (!quiz.length) {
+            text = "Failed to fetch quiz. Please try again later.";
+        } else {
+            text = "Quiz complete! Your score is " + score + "/" + quiz.length;
+        }
         return (
             <div className="flex flex-col flex-grow items-center justify-center">
-                <p>Loading...</p>
+                <p>{text}</p>
             </div>
         );
     }
 
-    if (quiz.length === 0) {
-        return (
-            <div className="flex flex-col flex-grow items-center justify-center">
-                <p>Failed to fetch quiz. Please try again later.</p>
-            </div>
-        );
-    }
-
-    // If we have answered all questions, show the score
-    if (currentQuestionIdx >= quiz.length) {
-        return (
-            <div className="flex flex-col flex-grow items-center justify-center">
-                <p>Quiz complete! Your score is {score}/{quiz.length}</p>
-            </div>
-        );
-    }
-
-    const currentQuestion = quiz[currentQuestionIdx];
 
     return (
         <div className="quiz flex flex-col flex-grow">
@@ -126,7 +88,7 @@ function Quiz() {
                             key={idx}
                             onClick={() => handleMultipleChoiceAnswer(answer)}
                             className={
-                                !answered ? '' :
+                                !isAnswered ? '' :
                                 answer === correctAnswer ? 'bg-green-500' :
                                 answer === selectedAnswer ? 'bg-red-500' : ''
                             }
@@ -141,14 +103,14 @@ function Quiz() {
                     </>
                 )}
                 {/* Conditionally render the correct/incorrect message and next question button */}
-                {answered ? (
-                    correct ? (
+                {isAnswered ? (
+                    isCorrect ? (
                         <p>Correct!</p>
                     ) : (
                         <p>Incorrect! The correct answer was: {correctAnswer}</p>
                     )
                 ) : null }
-                {answered ? (
+                {isAnswered ? (
                     <Button variant='default' onClick={() => {setCurrentQuestionIdx(currentQuestionIdx + 1)}}>Next Question</Button>
                 ) : null }
                 </div>
