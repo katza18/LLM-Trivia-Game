@@ -15,7 +15,7 @@ export const fetchQuiz = async (topic: string, qtype: string, numq: number) => {
         }
 
         const data = await response.json();
-        return data.results;
+        return data.quiz;
     } catch (error) {
         console.error("Error fetching quiz:", error);
         throw error; // Rethrow the error to handle it in the calling function
