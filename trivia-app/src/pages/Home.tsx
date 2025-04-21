@@ -23,7 +23,7 @@ const formSchema = z.object({
     }).max(50, {
         message: "Topic must be less than 50 characters long",
     }),
-    qtype: z.enum(["m", "sa"]), // multiple choice or short answer
+    qtype: z.enum(["multi", "short"]), // multiple choice or short answer
 })
 
 
@@ -84,8 +84,8 @@ function Home(){
                                                         <SelectValue placeholder="Select a question type" />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        <SelectItem value="m">Multiple Choice</SelectItem>
-                                                        <SelectItem value="sa">Short Answer</SelectItem>
+                                                        <SelectItem value="multi">Multiple Choice</SelectItem>
+                                                        <SelectItem value="short">Short Answer</SelectItem>
                                                     </SelectContent>
                                                 </Select>
                                             </FormControl>
