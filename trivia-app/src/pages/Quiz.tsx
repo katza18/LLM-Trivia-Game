@@ -30,7 +30,7 @@ function Quiz() {
     const handleAnswer = async (answer: string) => {
         // Check if answer is correct, send to backend to avoid storing answers in frontend; backend uses qtype to determine what table to check against
         try {
-            const result = await checkAnswer(answer, quiz[currentQuestionIdx].id, qtype);
+            const result = await checkAnswer(quiz[currentQuestionIdx].id, qtype);
             updateAnswerState(answer, result.correctAnswer);
         } catch (error) {
             console.error("Error checking answer:", error);
