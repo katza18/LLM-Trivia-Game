@@ -14,16 +14,15 @@ function Quiz() {
     const [score, setScore] = useState(0);
     const isAnswered = selectedAnswer !== null;
     const isCorrect = selectedAnswer === correctAnswer;
-    const currentQuestion = quiz[currentQuestionIdx];
 
-    
+
     const updateAnswerState = (answer: string, correctAnswer: string) => {
         setSelectedAnswer(answer);
         setCorrectAnswer(correctAnswer);
         if (answer === correctAnswer) {
             setScore((prevScore) => prevScore + 1);
         }
-    }
+    };
 
 
     const handleMultipleChoiceAnswer = async (answer: string) => {
@@ -36,6 +35,11 @@ function Quiz() {
         }
     };
 
+    const handleNextQuestion = () => {
+        setSelectedAnswer(null);
+        setCurrentQuestionIdx((prevIdx) => prevIdx + 1);
+        setCorrectAnswer('');
+    };
 
     useEffect(() => {
         const loadQuiz = async () => {
@@ -79,18 +83,18 @@ function Quiz() {
             <div className="body grid grid-cols-3 gap-4 h-auto flex-grow">
                 <div className="quiz col-start-2 flex flex-col justify-center bg-card gap-2">
                 <h2 className="text-center">--- Question #{currentQuestionIdx + 1} ---</h2>
-                <p className='text-center'>{currentQuestion.question}</p>
+                <p className='text-center'>{quiz[currentQuestionIdx].question}</p>
                 {/* Conditionally render multiple choice or short answer */}
-                { currentQuestion.qtype === 'm' ? (
-                    currentQuestion.answers.map((answer: string, idx: number) => (
+                { qtype === 'm' ? (
+                    quiz[currentQuestionIdx].answers.map((answer: string, idx: number) => (
                         <Button
                             variant='outline'
                             key={idx}
                             onClick={() => handleMultipleChoiceAnswer(answer)}
                             className={
                                 !isAnswered ? '' :
-                                answer === correctAnswer ? 'bg-green-500' :
-                                answer === selectedAnswer ? 'bg-red-500' : ''
+                                answer === correctAnswer ? 'bg-green-500 hover:bg-green-600' :
+                                answer === selectedAnswer ? 'bg-red-500 hover:bg-red-600' : ''
                             }
                         >
                             {answer}
@@ -105,13 +109,13 @@ function Quiz() {
                 {/* Conditionally render the correct/incorrect message and next question button */}
                 {isAnswered ? (
                     isCorrect ? (
-                        <p>Correct!</p>
+                        <p className="text-center">Correct!</p>
                     ) : (
-                        <p>Incorrect! The correct answer was: {correctAnswer}</p>
+                        <p className="text-center">Incorrect! The correct answer was: {correctAnswer}</p>
                     )
                 ) : null }
                 {isAnswered ? (
-                    <Button variant='default' onClick={() => {setCurrentQuestionIdx(currentQuestionIdx + 1)}}>Next Question</Button>
+                    <Button variant='default' onClick={handleNextQuestion}>Next Question</Button>
                 ) : null }
                 </div>
             </div>
