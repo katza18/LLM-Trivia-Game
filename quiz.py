@@ -41,7 +41,7 @@ class Quiz:
         # If there are no previous questions, return None
         if not previous_questions:
             return None
-        return ' '.join(previous_questions)
+        return ' '.join(question_tuple[0] for question_tuple in previous_questions)
 
 
     """
@@ -54,9 +54,9 @@ class Quiz:
         
         # Construct the prompt based on the question type
         if self.question_type == 'multi':
-            prompt = f"Create a multiple choice quiz on {self.topic} with {num_questions} questions. Each question should have 4 choices each consisting of 1 to 2 words. Format the output as JSON with the following structure: {'question': 'What is the capital of France?', 'choices': ['Paris', 'London', 'Berlin', 'Madrid'], 'answer': 'Paris'}"
+            prompt = f"Create a multiple choice quiz on {self.topic} with {num_questions} questions. Each question should have 4 choices each consisting of 1 to 2 words. Format the output as JSON with the following structure: {{'question': 'What is the capital of France?', 'choices': ['Paris', 'London', 'Berlin', 'Madrid'], 'answer': 'Paris'}}"
         else:
-            prompt = f"Create a quiz on {self.topic} with {num_questions} questions. Each question should have a 1 to 2 word solution. Format the output as JSON with the following structure: {'question': 'What is the capital of France?', 'answer': 'Paris'}"
+            prompt = f"Create a quiz on {self.topic} with {num_questions} questions. Each question should have a 1 to 2 word solution. Format the output as JSON with the following structure: {{'question': 'What is the capital of France?', 'answer': 'Paris'}}"
         prompt += f" Only include the JSON object in the response."
         if previously_generated_questions:
             prompt += f" Do not include questions similar to the following: {previously_generated_questions}"
@@ -84,16 +84,33 @@ class Quiz:
 
             # Extract the content from the response
             response_content = response.choices[0].message.content.strip()
+
+            # Strip the response of any preceding or trailing formatting characters
+            formatted_response = self.strip_response_formatting(response_content.replace("'", '"'))
             
             # Convert the JSON response to a dictionary and return
-            quiz_data = json.loads(response_content.replace("'", '"'))
+            quiz_data = json.loads(formatted_response)
 
             # Save the quiz data to the database
-            self.save_quiz(quiz_data, self.question_type, self.topic)
+            self.save_quiz(quiz_data)
 
             return quiz_data
         except Exception as e:
             raise e
+
+
+    def strip_response_formatting(self, response_content) -> str:
+        '''
+        Strips the prompt of any preceding or trailing formatting characters. String should start with [ and end with ]
+        '''
+        # Remove leading and trailing whitespace and brackets
+        if not response_content.startswith("["):
+            while len(response_content) > 0 and response_content[0] != "[":
+                response_content = response_content[1:]
+        if not response_content.endswith("]"):
+            while len(response_content) > 0 and response_content[-1] != "]":
+                response_content = response_content[:-1]
+        return response_content
 
 
     '''
@@ -105,7 +122,7 @@ class Quiz:
                 cursor.execute(f'''
                     INSERT INTO {MULTI_CHOICE_TABLE_NAME} (question, type, topic, answer, option1, option2, option3, option4)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                ''', (question_data['question'], self.question_type, self.topic, question_data['answer'], question_data['option1'], question_data['option2'], question_data['option3'], question_data['option4']))
+                ''', (question_data['question'], self.question_type, self.topic, question_data['answer'], question_data['choices'][0], question_data['choices'][1], question_data['choices'][2], question_data['choices'][3]))
             else:
                 cursor.execute(f'''
                     INSERT INTO {SHORT_ANSWER_TABLE_NAME} (question, type, topic, answer)
@@ -123,6 +140,6 @@ class Quiz:
         conn = sqlite3.connect(DATABASE_NAME)
         cursor = conn.cursor()
         for question_data in quiz_data:
-            self.save_question(cursor, question_data, self.question_type, self.topic)
+            self.save_question(cursor, question_data)
         conn.commit()
         conn.close()
