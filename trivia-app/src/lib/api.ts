@@ -22,13 +22,13 @@ export const fetchQuiz = async (topic: string, qtype: string, numq: number) => {
     }
 };
 
-export const checkAnswer = async (answer: string, questionId: string) => {
+export const checkAnswer = async (qid: string, qtype: string) => {
     var result = {correctAnswer: ''};
     try {
         const response = await fetch(API_URL + "check-answer", {
             method: "POST",
             headers,
-            body: JSON.stringify({ questionId, answer }),
+            body: JSON.stringify({ qid, qtype }),
         });
 
         if (!response.ok) {
@@ -36,7 +36,7 @@ export const checkAnswer = async (answer: string, questionId: string) => {
         }
 
         const data = await response.json();
-        result = data.result;
+        result = data.correct_answer;
     } catch (error) {
         throw error;
     } finally {
