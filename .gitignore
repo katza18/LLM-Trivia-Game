@@ -15,9 +15,6 @@ downloads/
 eggs/
 .eggs/
 /lib/
-<<<<<<< HEAD
-lib64/
-=======
 /lib64/
 >>>>>>> 07361ee (update gitignore)
 parts/

@@ -1,4 +1,7 @@
 flask
+flask-cors
 openai
 sqlite3
 asgiref
+sqlalchemy
+alembic

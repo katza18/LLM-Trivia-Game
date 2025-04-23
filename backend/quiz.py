@@ -1,6 +1,6 @@
 import sqlite3
 import json
-from database import DATABASE_NAME, SHORT_ANSWER_TABLE_NAME, MULTI_CHOICE_TABLE_NAME
+from backend.core.database import DATABASE_NAME, SHORT_ANSWER_TABLE_NAME, MULTI_CHOICE_TABLE_NAME
 from openai import AsyncOpenAI
 
 class Quiz:
