@@ -6,4 +6,4 @@ class Favorite(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey('users.id'))
-    question_id = Column(Integer, foreign_key='questions.id')
+    question_id = Column(Integer, ForeignKey('questions.id'))
