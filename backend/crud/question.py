@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 from pydantic import BaseModel
 from backend.models import question as question_model
 
@@ -9,14 +10,20 @@ class Question(BaseModel):
     topic: str
     choices: list = None
 
-def get_answer(db: Session, question_id: int) -> str:
+def get_answer(session: Session, question_id: int) -> str:
     # Check the answer in the database and return
-    question = db.query(question_model.Question).filter(question_model.Question.id == question_id).first()
-    return question.answer if question else None
+    statement = select(question_model.Question.answer).where(question_model.Question.id == question_id)
+    answer = session.execute(statement).scalars().all()
+    return answer[0] if answer else None 
 
-def save_question(db: Session, question_data: Question) -> None:
+def get_previous_questions(db: Session, topic: str) -> list:
+    # Get previous questions from the database
+    questions = db.query(question_model.Question.question).filter(question_model.Question.topic == topic).all()
+    return [question[0] for question in questions]
+
+def save_question(session: Session, question_data: Question) -> None:
     # Save the question to the database
     question = question_model.Question(**question_data)
-    db.add(question)
-    db.commit()
-    db.refresh(question)
+    session.add(question)
+    session.commit()
+    session.refresh(question)
