@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, ForeignKey, DateTime
-from app.core.database import Base
+from backend.core.database import Base
 
 class View(Base):
     __tablename__ = 'views'

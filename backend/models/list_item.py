@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, ForeignKey
-from app.core.database import Base
+from backend.core.database import Base
 
 class ListItem(Base):
     __tablename__ = 'list_items'
