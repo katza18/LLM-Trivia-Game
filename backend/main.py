@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 import os
 from openai import AsyncOpenAI
-from backend.api import quiz
+from backend.api import questions
 
 # Initialize the FastAPI app
 app = FastAPI()
@@ -31,7 +31,7 @@ def get_openai_client():
     """
     return client
 
-app.include_router(quiz.router, dependencies=[Depends(get_openai_client)])
+app.include_router(questions.router, dependencies=[Depends(get_openai_client)])
 
 
 # class AuthRequest(BaseModel):
