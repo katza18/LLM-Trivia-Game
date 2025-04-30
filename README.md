@@ -1,4 +1,4 @@
-# LLM-Trivia-Game
+# QuizGen
 
 ## Overview
 ![Home Page Image](images/home_demo.png)
