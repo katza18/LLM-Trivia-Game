@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, ForeignKey, DateTime
-from backend.core.database import Base
+from backend.db.database import Base
 
 class View(Base):
     __tablename__ = 'views'
@@ -9,4 +9,3 @@ class View(Base):
     question_id = Column(Integer, ForeignKey('questions.id'))
     view_count = Column(Integer, default=1)
     last_viewed = Column(DateTime, default='CURRENT_TIMESTAMP')
-    

@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
-from backend.core.database import Base
+from backend.db.database import Base
 
 class TokenLog(Base):
     __tablename__ = 'token_logs'
