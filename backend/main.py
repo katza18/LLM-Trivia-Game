@@ -1,26 +1,32 @@
-from fastapi import FastAPI, HTTPException, Request, Depends
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 from dotenv import load_dotenv
 import os
 from openai import AsyncOpenAI
 from backend.api import questions
+from supertokens_python.framework.fastapi import get_middleware
+from backend.auth.supertokens_init import setup_auth
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Initialize the auth system
+setup_auth(os.getenv('SUPERTOKENS_URI'))
 
 # Initialize the FastAPI app
 app = FastAPI()
 
-# Enable CORS for all routes
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["*"],
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
+# Auth middleware
+app.add_middleware(get_middleware())
 
-# Load environment variables from .env file
-load_dotenv()
+# Enable CORS for all routes
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[os.getenv('FRONTEND_URL')],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Initialize the OpenAI client
 client = AsyncOpenAI(api_key=os.getenv('OPENAI_API_KEY'))
