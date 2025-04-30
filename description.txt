@@ -1,0 +1,22 @@
+App gets run locally.
+
+Fetch quiz questions from ChatGPT based on a topic, difficulty, etc. 
+
+Present quiz questions one by one (fetch questions without answers, check answer on each submission). 10-15s to answer each question. Keep score. Users can report questions/answers as incorrect. Allow user to re-quiz on incorrectly answered questions when finished, requiz entire set or generate different questions on the topic.
+
+Store previously seen questions to prevent duplicates. This will quickly increase tokens in an API call. Could prevent duplication of the past 10-20 questions (answers need not be included).
+
+If moving to a global app, store generated questions and link to users such that we know what questions each user has already seen and how many times. We can use this to keep question generation fresh.
+
+
+Implement user tiers. Each tier should allow a set number of tokens to the API.
+
+Change check_answer. Currently users could just make requests to get the answers.
+
+Try SuperTokens for user auth.
+
+Data:
+1. Want a multiple choice question table and a short answer table.
+    1. keep track of id, question, answer, options, topic(case insensitive)
+2. Keep track of visited questions
+    1. keep track of question id, user id, data visited, # of times previously visited.
