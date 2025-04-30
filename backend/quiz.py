@@ -1,7 +1,9 @@
-from backend.core.database import DATABASE_NAME, SHORT_ANSWER_TABLE_NAME, MULTI_CHOICE_TABLE_NAME
+from backend.db.database import DATABASE_NAME, SHORT_ANSWER_TABLE_NAME, MULTI_CHOICE_TABLE_NAME
 from openai import AsyncOpenAI
 from backend.crud.question import get_previous_questions, save_quiz
 from pydantic import BaseModel
+from backend.crud.user import get_user
+import tiktoken
 
 class QuizRequest(BaseModel):
     topic: str
@@ -28,12 +30,37 @@ def construct_prompt(quiz_params: QuizRequest) -> str:
     return prompt
 
 
+def is_allowed_to_generate_quiz(user_id: str, prompt: str) -> bool:
+    '''
+    Check if the user has enough quota to generate a quiz.
+    This function should check the user's quota and return True or False.
+    '''
+    # Get the user's quota and used tokens
+    encoding = tiktoken.encoding_for_model("gpt-4o-mini")
+
+    try:
+        user = get_user(user_id)
+        quota = user.quota
+        used = user.token_used
+        prompt_tokens = encoding.encode(prompt)
+        # Check if the user has enough quota
+        if quota - used - prompt_tokens > 0:
+            return True
+        return False
+    except Exception as e:
+        return False
+
+
 '''
     Fetches the quiz data from the OpenAI API using the constructed prompt and omits previously generated questions.
 '''
-async def generate_quiz(quiz_params: QuizRequest, client: AsyncOpenAI) -> dict:
+async def generate_quiz(quiz_params: QuizRequest, client: AsyncOpenAI, user_id: str) -> dict:
     # Create the prompt
     prompt = construct_prompt(quiz_params)
+
+    # Check user's quota
+    if not is_allowed_to_generate_quiz(user_id, prompt):
+        raise Exception("User has exceeded their quota for generating quizzes.")
 
     # Generate the quiz using OpenAI API
     try:
