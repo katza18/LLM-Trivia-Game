@@ -6,11 +6,11 @@ import Quiz from './pages/Quiz';
 import Home from './pages/Home';
 import * as reactRouterDom from 'react-router-dom';
 import { getSuperTokensRoutesForReactRouterDom } from "supertokens-auth-react/ui";
-import 
-
 import SuperTokens, { SuperTokensWrapper } from "supertokens-auth-react";
 import EmailPassword from "supertokens-auth-react/recipe/emailpassword";
 import Session from "supertokens-auth-react/recipe/session";
+import { EmailPasswordPreBuiltUI } from "supertokens-auth-react/recipe/emailpassword/prebuiltui";
+import { SessionAuth } from "supertokens-auth-react/recipe/session";
 
 // Initialize SuperTokens
 SuperTokens.init({
@@ -43,7 +43,7 @@ function App() {
                 {/* MAIN CONTENT */}
                 <Routes>
                     {/* Render login UI on /auth route */}
-                    {getSuperTokensRoutesForReactRouterDom(reactRouterDom, [EmailPasswordPrebuiltUI])}
+                    {getSuperTokensRoutesForReactRouterDom(reactRouterDom, [EmailPasswordPreBuiltUI])}
                     <Route path="/" element={<Home />} />
                     <Route path="/quiz" element={<Quiz />} />
                 </Routes>
