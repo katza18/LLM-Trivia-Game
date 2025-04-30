@@ -1,0 +1,61 @@
+version: '1.0'
+
+services:
+  quizgen-db:
+    image: postgres:17
+    container_name: quizgen-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: quizgen
+      POSTGRES_PASSWORD: ${QUIZGEN_DB_PASSWORD}
+      POSTGRES_DB: quizgendb
+    volumes:
+      - quizgen-db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "quizgen", "-d", "quizgendb"]
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      timeout: 5s
+
+  supertokens-core:
+    image: registry.supertokens.io/supertokens/supertokens-postgresql
+    container_name: supertokens-core
+    restart: unless-stopped
+    ports:
+      - 3567:3567
+    environment:
+      POSTGRESQL_CONNECTION_URI: "postgresql://supertokens_user:${SUPERTOKENS_DB_PASSWORD}@supertokens-db:5432/supertokens"
+    depends_on:
+      supertokens-db:
+        condition: service_healthy
+    healthcheck:
+      test: >
+        bash -c 'exec 3<>/dev/tcp/127.0.0.1/3567 && echo -e "GET /hello HTTP/1.1\r\nhost: 127.0.0.1:3567\r\nConnection: close\r\n\r\n" >&3 && cat <&3 | grep "Hello"'
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  supertokens-db:
+      image: postgres:17
+      container_name: supertokens-db
+      restart: unless-stopped
+      ports:
+        - "5433:5432"
+      environment:
+        POSTGRES_USER: supertokens_user
+        POSTGRES_PASSWORD: ${SUPERTOKENS_DB_PASSWORD}
+        POSTGRES_DB: supertokens
+      volumes:
+        - supertokens-db-data:/var/lib/postgresql/data
+      healthcheck:
+        test: ['CMD', 'pg_isready', '-U', 'supertokens_user', '-d', 'supertokens']
+        interval: 5s
+        timeout: 5s
+        retries: 5
+
+volumes:
+  quizgen-db-data:
+  supertokens-db-data:
