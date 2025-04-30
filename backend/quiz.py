@@ -42,9 +42,9 @@ def is_allowed_to_generate_quiz(user_id: str, prompt: str) -> bool:
         user = get_user(user_id)
         quota = user.quota
         used = user.token_used
-        prompt_tokens = encoding.encode(prompt)
+        encoded_prompt = encoding.encode(prompt)
         # Check if the user has enough quota
-        if quota - used - prompt_tokens > 0:
+        if quota - used - len(encoded_prompt) > 0:
             return True
         return False
     except Exception as e:
