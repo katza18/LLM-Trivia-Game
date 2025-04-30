@@ -7,14 +7,22 @@ from alembic import context
 
 import sys
 import os
+from dotenv import load_dotenv
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-from backend.core.database import Base
-from backend.models import favorite, list_item, list, pay_tier, question, token_log, user_list, user, view 
+from backend.db.database import Base
+from backend.models import favorite, list_item, list, pay_tier, question, token_log, user_list, user, view
+
+load_dotenv()
+DATABASE_URL = f'postgresql://{os.getenv('QUIZGEN_DB_USER')}:{os.getenv('QUIZGEN_DB_PASSWORD')}@{os.getenv('QUIZGEN_DB_URI')}'
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+
+# Set url
+config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
