@@ -64,7 +64,7 @@ This app quizzes users on a predefined topic in the style of a trivia game. It t
 
 5. **Launch Frontend from trivia-frontend**
     ```bash
-    cd trivia-frontend
+    cd frontend
     npm run dev
     ```
 
