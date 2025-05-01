@@ -1,5 +1,5 @@
 import './App.css'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
 import { ThemeProvider } from './components/theme-provider';
 import { ModeToggle } from './components/mode-toggle';
 import Quiz from './pages/Quiz';
@@ -11,6 +11,8 @@ import EmailPassword from "supertokens-auth-react/recipe/emailpassword";
 import Session from "supertokens-auth-react/recipe/session";
 import { EmailPasswordPreBuiltUI } from "supertokens-auth-react/recipe/emailpassword/prebuiltui";
 import { SessionAuth } from "supertokens-auth-react/recipe/session";
+import { useEffect, useState } from 'react';
+import Header from './components/header';
 
 // Initialize SuperTokens
 SuperTokens.init({
@@ -24,34 +26,43 @@ SuperTokens.init({
     recipeList: [EmailPassword.init(), Session.init()],
 });
 
+
+
 function App() {
-  return (
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    useEffect(() => {
+        async function checkSession() {
+            const sessionExists = await Session.doesSessionExist();
+            setIsLoggedIn(sessionExists);
+        }
+        checkSession();
+    }, []);
+
+    return (
     <SuperTokensWrapper>
         <ThemeProvider defaultTheme='dark' storageKey='vite-ui-theme'>
             <Router>
                 {/* MAIN CONTAINER */}
                 <div className="min-h-screen bg-background text-primary flex flex-col p-4">
-                {/* HEADER */}
-                <div className="header grid grid-cols-3 gap-4 h-auto">
-                    <div className="title col-span-1 col-start-2 flex justify-center bg-card">
-                        <p>QuizGen</p>
-                    </div>
-                    <div className="theme col-start-3 flex justify-end">
-                        <ModeToggle />
-                    </div>
-                </div>
-                {/* MAIN CONTENT */}
-                <Routes>
-                    {/* Render login UI on /auth route */}
-                    {getSuperTokensRoutesForReactRouterDom(reactRouterDom, [EmailPasswordPreBuiltUI])}
-                    <Route path="/" element={<Home />} />
-                    <Route path="/quiz" element={<Quiz />} />
-                </Routes>
+                    {/* HEADER */}
+                    <Header isLoggedIn={isLoggedIn} />
+                    {/* MAIN CONTENT */}
+                    <Routes>
+                        {/* Render login UI on /auth route */}
+                        {getSuperTokensRoutesForReactRouterDom(reactRouterDom, [EmailPasswordPreBuiltUI])}
+                        <Route path="/" element={<Home />} />
+                        <Route path="/quiz" element={
+                            <SessionAuth>
+                                <Quiz />
+                            </SessionAuth>
+                            } />
+                    </Routes>
                 </div>
             </Router>
         </ThemeProvider>
     </SuperTokensWrapper>
-  )
+    )
 }
 
 export default App
