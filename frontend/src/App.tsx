@@ -57,6 +57,20 @@ function App() {
                         <Route path="/demo" element={
                             <Quiz isDemo={true} />    
                         } />
+                        <Route path="/profile" element={
+                            <SessionAuth>
+                                <div className="flex flex-col flex-grow items-center justify-center">
+                                    <p>Hello.</p>
+                                </div>
+                            </SessionAuth>
+                        } />
+                        <Route path="/plans" element={
+                            <SessionAuth>
+                                <div className="flex flex-col flex-grow items-center justify-center">
+                                    <p>Choose a plan.</p>
+                                </div>
+                            </SessionAuth>
+                        } />
                     </Routes>
                 </div>
             </Router>
