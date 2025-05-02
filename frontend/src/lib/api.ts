@@ -2,9 +2,10 @@ const API_URL = "http://localhost:5000/";
 const headers = {
     "Content-Type": "application/json",
 }
-export const fetchQuiz = async (topic: string, qtype: string, numq: number) => {
+export const fetchQuiz = async (topic: string, qtype: string, numq: number, isDemo: boolean) => {
     try {
-        const response = await fetch(API_URL + "generate-quiz", {
+        const route =  isDemo ? "generate-quiz-demo" : "generate-quiz";
+        const response = await fetch(API_URL + route, {
             method: "POST",
             headers,
             body: JSON.stringify({ topic, qtype, numq }),

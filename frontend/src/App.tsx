@@ -1,7 +1,6 @@
 import './App.css'
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { ThemeProvider } from './components/theme-provider';
-import { ModeToggle } from './components/mode-toggle';
 import Quiz from './pages/Quiz';
 import Home from './pages/Home';
 import * as reactRouterDom from 'react-router-dom';
@@ -25,8 +24,6 @@ SuperTokens.init({
     },
     recipeList: [EmailPassword.init(), Session.init()],
 });
-
-
 
 function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -56,13 +53,16 @@ function App() {
                             <SessionAuth>
                                 <Quiz />
                             </SessionAuth>
-                            } />
+                        } />
+                        <Route path="/demo" element={
+                            <Quiz isDemo={true} />    
+                        } />
                     </Routes>
                 </div>
             </Router>
         </ThemeProvider>
     </SuperTokensWrapper>
-    )
+    );
 }
 
 export default App

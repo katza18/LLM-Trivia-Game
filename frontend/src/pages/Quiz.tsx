@@ -4,7 +4,11 @@ import { useLocation } from "react-router-dom";
 import { fetchQuiz } from '@/lib/api';
 import QuestionCard from '@/components/question-card';
 
-function Quiz() {
+interface QuizProps {
+    isDemo?: boolean;
+}
+
+function Quiz({isDemo = false}: QuizProps) {
     const numberOfQuestions = 10; // Number of questions to fetch
     const location = useLocation();
     const { topic, qtype } = location.state as { topic: string; qtype: string };
@@ -23,7 +27,7 @@ function Quiz() {
     useEffect(() => {
         const loadQuiz = async () => {
             try {
-                const data = await fetchQuiz(topic, qtype, numberOfQuestions);
+                const data = await fetchQuiz(topic, qtype, numberOfQuestions, isDemo);
                 setQuiz(data);
                 console.log("Quiz data:", data);
             } catch (error) {
