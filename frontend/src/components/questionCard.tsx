@@ -4,22 +4,31 @@ import { Input } from '@/components/ui/input';
 import { useState } from "react";
 import { checkAnswer } from '@/lib/api';
 
-interface QuestionCardProps {
-    questionNumber: number;
+interface QuizQuestionCardProps {
     question: string;
     choices: string[];
     score: number;
     qtype: string;
-    quizLength: number;
     questionId: string;
-    setScore: React.Dispatch<React.SetStateAction<number>>;
-    setCurrentQuestionIdx: React.Dispatch<React.SetStateAction<number>>;
+    questionNumber?: number;
+    quizLength?: number;
+    questionAnswer?: string;
+    setScore?: React.Dispatch<React.SetStateAction<number>>;
+    setCurrentQuestionIdx?: React.Dispatch<React.SetStateAction<number>>;
 }
 
-// <Quiz correctAnswer={quiz[currentQuestionIdx].answer}, question={quiz[currentQuestionIdx].question}, choices={quiz[currentQuestionIdx].choices} quizLength={quiz.length} questionId={quiz[currentQuestionIdx].id}/>
-
-export default function QuestionCard(props: QuestionCardProps) {
-    const { questionNumber, question, choices, score, qtype, quizLength, questionId, setScore, setCurrentQuestionIdx } = props;
+export default function QuestionCard(props: QuizQuestionCardProps) {
+    const { 
+        questionNumber, 
+        question, 
+        choices, 
+        score, 
+        qtype, 
+        quizLength, 
+        questionId, 
+        questionAnswer, 
+        setScore, 
+        setCurrentQuestionIdx } = props;
     const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
     const [correctAnswer, setCorrectAnswer] = useState<string>('');
     const isAnswered = selectedAnswer !== null;
@@ -28,31 +37,41 @@ export default function QuestionCard(props: QuestionCardProps) {
     const handleAnswer = async (userAnswer: string) => {
         // Check if answer is correct, send to backend to avoid storing answers in frontend; backend uses qtype to determine what table to check against
         try {
-            const result = await checkAnswer(questionId, qtype);
-            setCorrectAnswer(result.correctAnswer);
+            if (!questionAnswer) {
+                // An answer will not be provided for quizes
+                const result = await checkAnswer(questionId, qtype);
+                setCorrectAnswer(result.correctAnswer);
+            } else {
+                // An answer will be provided when viewing a past question
+                setCorrectAnswer(questionAnswer);
+            }
+            
             setSelectedAnswer(userAnswer);
-            if (isCorrect) {
+            if (isCorrect && setScore) {
                 setScore((prevScore) => prevScore + 1);
             }
         } catch (error) {
             console.error("Error checking answer:", error);
         }
     };
-
+    
+    
     const handleNextQuestion = () => {
         setSelectedAnswer(null);
-        setCurrentQuestionIdx((prevIdx) => prevIdx + 1);
+        if (setCurrentQuestionIdx) {
+            setCurrentQuestionIdx((prevIdx) => prevIdx + 1);
+        }
         setCorrectAnswer('');
     };
+    
 
     return (
     <div className="quiz flex flex-col flex-grow">
-        <div hidden className="timer flex items-center justify-center flex-grow">
-            <p>Time left: 15 seconds</p>
-        </div>
         <div className="body grid grid-cols-3 gap-4 h-auto flex-grow">
             <div className="quiz col-start-2 flex flex-col justify-center bg-card gap-2">
-            <h2 className="text-center">--- Question #{questionNumber} ---</h2>
+            { questionNumber ? ( 
+                <h2 className="text-center">--- Question #{questionNumber} ---</h2>
+            ) : null }
             <p className='text-center'>{question}</p>
             {/* Conditionally render multiple choice or short answer */}
             { qtype === 'multi' ? (
@@ -91,20 +110,27 @@ export default function QuestionCard(props: QuestionCardProps) {
                 isCorrect ? (
                     <p className="text-center">Correct!</p>
                 ) : (
-                    <p className="text-center">Incorrect! The correct answer was: {correctAnswer}</p>
+                    <p className="text-center">Incorrect! The correct answer was:
+                     {correctAnswer}</p>
                 )
             ) : null }
             {isAnswered ? (
-                <Button variant='default' onClick={handleNextQuestion}>Next Question</Button>
+                <Button variant='default' onClick={handleNextQuestion}>
+                    {quizLength? ('Next Question') : 'Reset'}
+                </Button>
             ) : null }
             </div>
         </div>
-        <div className="score flex justify-center items-center flex-grow ">
-            <p>{score}/{quizLength}</p>
-        </div>
+        { score ? (
+            <div className="score flex justify-center items-center flex-grow ">
+                <p>{score}/{quizLength}</p>
+            </div>
+        ): null}
         <div className="footer grid grid-cols-3 gap-4 h-auto">
             <div className="correction col-start-2 flex justify-center">
-            <Button hidden variant='outline'>Submit question correction</Button> {/* This should open a form to be filled out that submits a correction to the questions/answers */}
+            {/* This should open a form to be filled out that submits a correction
+             to the questions/answers */}
+            <Button hidden variant='outline'>Submit question correction</Button> 
             </div>
         </div>
     </div>
