@@ -31,6 +31,14 @@ async def get_previous_questions(quantity: int = 10, session: SessionContainer =
 
     return {"previous_questions": previous_questions}
 
+@router.post("/demo")
+async def demo_quiz(quiz_params: QuizRequest):
+    try:
+        quiz_data = await question.get_demo_quiz(quiz_params)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+    return {"quiz": quiz_data}
 
 @router.post("/generate")
 async def generate(quiz_params: QuizRequest, openai_client: AsyncOpenAI = Depends(), session: SessionContainer = Depends(verify_session())):
