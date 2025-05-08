@@ -7,6 +7,28 @@ from supertokens_python.recipe.session import SessionContainer
 
 router = APIRouter(prefix="/questions", tags=["questions"])
 
+@router.get("/previous")
+async def get_previous_questions(quantity: int = 10, session: SessionContainer = Depends(verify_session())):
+    """
+    Endpoint to get previously generated questions for a specific topic.
+
+    Parameters:
+    - number: The number of previous questions to fetch.
+    """
+    # Check that the user is logged in
+    if session is None:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    # Get the user ID from the session
+    user = session.get_user_id()
+
+    try:
+        # Fetch the 
+        previous_questions = await question.get_user_previous_questions(user, quantity)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+    return {"previous_questions": previous_questions}
 
 @router.post("/generate")
 async def generate(quiz_params: QuizRequest, openai_client: AsyncOpenAI = Depends(), session: SessionContainer = Depends(verify_session())):
