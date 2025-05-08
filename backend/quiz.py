@@ -1,9 +1,9 @@
-from backend.db.database import DATABASE_NAME, SHORT_ANSWER_TABLE_NAME, MULTI_CHOICE_TABLE_NAME
 from openai import AsyncOpenAI
 from backend.crud.question import get_previous_questions, save_quiz
 from pydantic import BaseModel
-from backend.crud.user import get_user
+from backend.crud import user as user_crud
 import tiktoken
+from datetime import datetime
 
 class QuizRequest(BaseModel):
     topic: str
@@ -11,11 +11,11 @@ class QuizRequest(BaseModel):
     numq: int
 
 
-"""
-    Constructs a prompt for the OpenAI API based on the question type and topic.
-"""
 # TODO: Optimize prompts to minimize token usage.
 def construct_prompt(quiz_params: QuizRequest) -> str:
+    """
+    Constructs a prompt for the OpenAI API based on the question type and topic.
+    """
     # Get previously generated questions
     previously_generated_questions = get_previous_questions()
 
@@ -30,7 +30,7 @@ def construct_prompt(quiz_params: QuizRequest) -> str:
     return prompt
 
 
-def is_allowed_to_generate_quiz(user_id: str, prompt: str) -> bool:
+async def update_user_tokens(user_id: str, prompt: str) -> bool:
     '''
     Check if the user has enough quota to generate a quiz.
     This function should check the user's quota and return True or False.
@@ -39,16 +39,25 @@ def is_allowed_to_generate_quiz(user_id: str, prompt: str) -> bool:
     encoding = tiktoken.encoding_for_model("gpt-4o-mini")
 
     try:
-        user = get_user(user_id)
-        quota = user.quota
-        used = user.token_used
+        user = await user_crud.get_user(user_id)
+        if user.quota_expiration is not None and user.quota_expiration < datetime.now():
+            # User's quota has expired, reset tokens used
+            user.tokens_used = 0
+            user.quota_expiration = None
+            await user_crud.update_user(user)
+        
         encoded_prompt = encoding.encode(prompt)
         # Check if the user has enough quota
-        if quota - used - len(encoded_prompt) > 0:
-            return True
-        return False
+        if user.quota - user.tokens_used - len(encoded_prompt) < 0:
+            return False 
+    
+        # Check if the user's quota has expired
+        user.tokens_used += len(encoded_prompt)
+        await user_crud.update_user(user)
+
+        return True
     except Exception as e:
-        return False
+        raise e
 
 
 '''
@@ -59,8 +68,11 @@ async def generate_quiz(quiz_params: QuizRequest, client: AsyncOpenAI, user_id: 
     prompt = construct_prompt(quiz_params)
 
     # Check user's quota
-    if not is_allowed_to_generate_quiz(user_id, prompt):
+    if not update_user_tokens(user_id, prompt):
         raise Exception("User has exceeded their quota for generating quizzes.")
+
+    # Log the token usage and update the user's tokens_used
+
 
     # Generate the quiz using OpenAI API
     try:
