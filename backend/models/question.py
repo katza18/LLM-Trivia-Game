@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy.sql import func
 from backend.db.database import Base
 
 class Question(Base):
@@ -13,3 +14,4 @@ class Question(Base):
     choice4 = Column(String)
     type = Column(String)
     topic = Column(String)
+    created_at = Column(DateTime, default=func.now())
