@@ -25,13 +25,15 @@ export const fetchQuiz = async (topic: string, qtype: string, numq: number, isDe
 
 // User data interface and API calls
 export interface UserData {
-    userName: string;
-    tokensUsed: number;
-    tokensRemaining: number;
+    username: string;
+    email: string;
+    tokens_used: number;
+    quota: number;
+    quota_expiration: Date;
 }
 export const fetchUser = async (): Promise<UserData> => {
     try {
-        const response = await fetch(API_URL + "user", {
+        const response = await fetch(API_URL + "users/", {
             method: "GET",
             headers,
         });
@@ -57,7 +59,7 @@ interface Question {
 }
 export const fetchRecentQuestions = async (numQuestions: number): Promise<Question[]> => {
     try {
-        const response = await fetch(`{API_URL}recent-questions?numQuestions=${numQuestions}`, {
+        const response = await fetch(`{API_URL}questions/previous?quantity=${numQuestions}`, {
             method: "GET",
             headers,
         })
@@ -77,7 +79,7 @@ export const fetchRecentQuestions = async (numQuestions: number): Promise<Questi
 export const checkAnswer = async (qid: string, qtype: string) => {
     var result = {correctAnswer: ''};
     try {
-        const response = await fetch(API_URL + "check-answer", {
+        const response = await fetch(`${API_URL}questions/${qid}/answer`, {
             method: "POST",
             headers,
             body: JSON.stringify({ qid, qtype }),
