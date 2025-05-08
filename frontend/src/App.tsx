@@ -64,13 +64,6 @@ function App() {
                                 </div>
                             </SessionAuth>
                         } />
-                        <Route path="/plans" element={
-                            <SessionAuth>
-                                <div className="flex flex-col flex-grow items-center justify-center">
-                                    <p>Choose a plan.</p>
-                                </div>
-                            </SessionAuth>
-                        } />
                     </Routes>
                 </div>
             </Router>
