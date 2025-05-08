@@ -45,10 +45,9 @@ export default function Profile() {
             {/* Add a carousel component for lists, favs, recents. When a user 
             has used their tokens, display a prompt to buy (or request) more. 
             Add payments after MVP release */}
-            <p className="text-2xl font-bold">{userData.userName}</p>
+            <p className="text-2xl font-bold">{userData.username}</p>
             <div>
-                <p className="text-lg">Tokens Used: {userData.tokensUsed}</p>
-                <p className="text-lg">Tokens Remaining: {userData.tokensRemaining}</p>
+                <p className="text-lg">Tokens Used: {userData.tokens_used} / {userData.quota}</p>
             </div>
             <div className="mt-4">
                 <h2 className="text-xl font-semibold">Recent Questions</h2>
