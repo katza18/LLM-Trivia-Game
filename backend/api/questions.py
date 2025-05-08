@@ -4,6 +4,7 @@ from backend.quiz import generate_quiz, QuizRequest
 from backend.crud import question
 from supertokens_python.recipe.session.framework.fastapi import verify_session
 from supertokens_python.recipe.session import SessionContainer
+from backend.db.database import SessionLocal
 
 router = APIRouter(prefix="/questions", tags=["questions"])
 
@@ -20,15 +21,16 @@ async def get_previous_questions(quantity: int = 10, session: SessionContainer =
         raise HTTPException(status_code=401, detail="Unauthorized")
     
     # Get the user ID from the session
-    user = session.get_user_id()
+    user_id = session.get_user_id()
 
     try:
-        # Fetch the 
-        previous_questions = await question.get_user_previous_questions(user, quantity)
+        db = SessionLocal()
+        previous_questions = await question.get_user_previous_questions(db, user_id, quantity)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
     return {"previous_questions": previous_questions}
+
 
 @router.post("/generate")
 async def generate(quiz_params: QuizRequest, openai_client: AsyncOpenAI = Depends(), session: SessionContainer = Depends(verify_session())):
@@ -37,6 +39,8 @@ async def generate(quiz_params: QuizRequest, openai_client: AsyncOpenAI = Depend
     TODO: Add SQL injection prevention and input validation.
     """
     # Check that this user has enough quota left
+    if session is None:
+        raise HTTPException(status_code=401, detail="Unauthorized")
 
     try:
         quiz_data = await generate_quiz(quiz_params, openai_client)
@@ -52,7 +56,8 @@ async def get_answer(qid: int):
     Endpoint to check the answer of a quiz question.
     """
     try:
-        correct_answer = await question.get_answer(session, qid)
+        db = SessionLocal()
+        correct_answer = await question.get_answer(db, qid)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
