@@ -4,7 +4,7 @@ const headers = {
 }
 export const fetchQuiz = async (topic: string, qtype: string, numq: number, isDemo: boolean) => {
     try {
-        const route =  isDemo ? "generate-quiz-demo" : "generate-quiz";
+        const route = "questions/" + isDemo ? "demo" : "generate";
         const response = await fetch(API_URL + route, {
             method: "POST",
             headers,
