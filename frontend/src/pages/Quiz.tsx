@@ -2,7 +2,7 @@ import { Button } from '../components/ui/button';
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { fetchQuiz } from '@/lib/api';
-import QuestionCard from '@/components/question-card';
+import QuestionCard from '@/components/questionCard';
 
 interface QuizProps {
     isDemo?: boolean;
