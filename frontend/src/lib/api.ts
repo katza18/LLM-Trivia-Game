@@ -23,6 +23,31 @@ export const fetchQuiz = async (topic: string, qtype: string, numq: number, isDe
     }
 };
 
+// User data interface and API calls
+export interface UserData {
+    userName: string;
+    tokensUsed: number;
+    tokensRemaining: number;
+}
+export const fetchUser = async (): Promise<UserData> => {
+    try {
+        const response = await fetch(API_URL + "user", {
+            method: "GET",
+            headers,
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to fetch user data");
+        }
+
+        const data = await response.json();
+        return data.user;
+    } catch (error: any) {
+        console.error("Error fetching user:", error);
+        throw error; // Rethrow the error to handle it in the calling function
+    }
+}
+
 export const checkAnswer = async (qid: string, qtype: string) => {
     var result = {correctAnswer: ''};
     try {
