@@ -7,9 +7,9 @@ import { checkAnswer } from '@/lib/api';
 interface QuizQuestionCardProps {
     question: string;
     choices: string[];
-    score: number;
     qtype: string;
     questionId: string;
+    score?: number;
     questionNumber?: number;
     quizLength?: number;
     questionAnswer?: string;
