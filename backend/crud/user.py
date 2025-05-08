@@ -44,11 +44,12 @@ async def create_user(db: Session, user_data: UserSchema) -> User:
 
 
 def get_user(db: Session, user_id: int) -> User:
-    # Query the database for the user
-    stmt = select(User).where(User.id == user_id)
+    # Query the database for the user's information excluding created_at and id
+    stmt = select(User.username, User.email, User.quota, User.quota_expiration, User.tokens_used).where(User.id == user_id)
     user = db.execute(stmt).scalars().first()
     if not user:
         raise Exception("User not found")
+
     return user
 
 
